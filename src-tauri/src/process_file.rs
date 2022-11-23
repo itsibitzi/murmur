@@ -1,7 +1,8 @@
 use std::process::Command;
 
-use subparse::SubtitleFileInterface;
 use tempdir::TempDir;
+
+use crate::srt::SrtFile;
 
 #[tauri::command]
 pub fn process_file(path: String) -> Result<(), String> {
@@ -25,10 +26,7 @@ pub fn process_file(path: String) -> Result<(), String> {
 
         if let Some(Ok(path)) = paths.next() {
             let s = std::fs::read_to_string(path).unwrap();
-            let subtitles = subparse::SrtFile::parse(&s)
-                .unwrap()
-                .get_subtitle_entries()
-                .unwrap();
+            let subtitles = SrtFile::parse(&s).unwrap();
             println!("{:?}", subtitles);
 
             Ok(())

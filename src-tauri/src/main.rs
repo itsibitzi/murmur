@@ -1,4 +1,6 @@
+mod error;
 mod process_file;
+mod srt;
 use process_file::process_file;
 
 // #![cfg_attr(
