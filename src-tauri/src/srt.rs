@@ -10,10 +10,11 @@ use nom::{
     sequence::{separated_pair, tuple},
     IResult,
 };
+use serde::Serialize;
 
 use crate::error::Error;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct Subtitle {
     pub number: u32,
     pub start: NaiveTime,
@@ -32,7 +33,7 @@ impl Subtitle {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct SrtFile {
     pub subtitles: Vec<Subtitle>,
 }

@@ -4,8 +4,8 @@ use tempdir::TempDir;
 
 use crate::srt::SrtFile;
 
-#[tauri::command]
-pub fn process_file(path: String) -> Result<(), String> {
+#[tauri::command(async)]
+pub fn process_file(path: String) -> Result<SrtFile, String> {
     let tmp_dir = TempDir::new("murmur").map_err(|_| "Failed to create directory".to_owned())?;
 
     let dir_path = tmp_dir.path().to_string_lossy();
@@ -27,9 +27,8 @@ pub fn process_file(path: String) -> Result<(), String> {
         if let Some(Ok(path)) = paths.next() {
             let s = std::fs::read_to_string(path).unwrap();
             let subtitles = SrtFile::parse(&s).unwrap();
-            println!("{:?}", subtitles);
 
-            Ok(())
+            Ok(subtitles)
         } else {
             // bad
             Err("Could not find SRT file".to_owned())
