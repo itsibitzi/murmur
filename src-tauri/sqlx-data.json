@@ -1,0 +1,163 @@
+{
+  "db": "SQLite",
+  "0eeae45bca689e2372e9ded754385d5b70c6cbe4231fa013fd7755564815ee85": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 3
+      }
+    },
+    "query": "\n            INSERT INTO files (id, name, data)\n                VALUES (?, ?, ?)\n            "
+  },
+  "38b4bb3827b4960c1da5cdf12303a96f7e0e1e27ea76e3381f7c3cc7014f81a1": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id: JobId",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "file_id: FileId",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "language: Language",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "quality: TranslationQuality",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "status: JobStatus",
+          "ordinal": 4,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "\n            SELECT \n                id AS \"id: JobId\",\n                file_id AS \"file_id: FileId\",\n                language AS \"language: Language\",\n                quality AS \"quality: TranslationQuality\",\n                status AS \"status: JobStatus\"\n            FROM file_jobs\n            "
+  },
+  "4e4323e37fd9c7fea6ddffc56f3dd44ea08ce58ec67313d99167894c78263bb8": {
+    "describe": {
+      "columns": [
+        {
+          "name": "job_id: JobId",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "file_id: FileId",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "language: Language",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "quality: TranslationQuality",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "status: JobStatus",
+          "ordinal": 4,
+          "type_info": "Bool"
+        },
+        {
+          "name": "data",
+          "ordinal": 5,
+          "type_info": "Blob"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "\n            SELECT \n                file_jobs.id AS \"job_id: JobId\",\n                file_id AS \"file_id: FileId\",\n                language AS \"language: Language\",\n                quality AS \"quality: TranslationQuality\",\n                status AS \"status: JobStatus\",\n                data\n            FROM file_jobs\n            INNER JOIN files ON (file_id = files.id)\n            WHERE status = 'waiting'\n            ORDER BY file_jobs.id DESC\n            LIMIT 1\n            "
+  },
+  "8c2f6656d6450367d809972a036614682c4d541d93d2b771dc6b798934dc955d": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 4
+      }
+    },
+    "query": "\n            INSERT INTO file_jobs (file_id, language, quality, status)\n                VALUES (?, ?, ?, ?)\n            "
+  },
+  "9a8f57eb60b82a9b327652715c4d0a363ca9f54cdd98f27a31c58a8e777bab72": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 6
+      }
+    },
+    "query": "\n                INSERT INTO segments (file_id, job_id, number, start, end, text)\n                VALUES (?, ?, ?, ?, ?, ?)\n                "
+  },
+  "afc13691ddbd9a18048c34d3d2f42b50be0258a576143f5746645d898e09c169": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 2
+      }
+    },
+    "query": "\n            UPDATE file_jobs SET status = ? WHERE id = ?\n            "
+  },
+  "c44c6dc45f0e6b90a7388bb9364eefa34682d8b65faee50e954cb4d0c9646ee6": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id: FileId",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "name: String",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "data: Vec<u8>",
+          "ordinal": 2,
+          "type_info": "Blob"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "\n            SELECT\n                id AS \"id: FileId\",\n                name AS \"name: String\",\n                data AS \"data: Vec<u8>\"\n            FROM files\n            "
+  }
+}
