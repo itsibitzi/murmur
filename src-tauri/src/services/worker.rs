@@ -28,6 +28,9 @@ impl Worker {
             println!("Polling for job");
             if let Ok(Some(task)) = self.db.select_next_job().await {
                 println!("Found job {}!", task.job_id.0);
+                if let Err(e) = self.db.begin_job(&task.job_id).await {
+                    eprintln!("Failed to mark job {} as in progress: {}", task.job_id.0, e);
+                }
 
                 let model_path = match task.quality {
                     TranslationQuality::High => &self.high_quality_path,

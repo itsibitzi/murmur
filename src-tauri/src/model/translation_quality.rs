@@ -1,7 +1,9 @@
 use serde::{Deserialize, Serialize};
+use ts_rs::TS;
 
-#[derive(Clone, Deserialize, Serialize, sqlx::Type, Debug)]
+#[derive(TS, Clone, Deserialize, Serialize, sqlx::Type, Debug)]
 #[sqlx(rename_all = "lowercase")]
+#[ts(export)]
 pub enum TranslationQuality {
     High,
     Medium,

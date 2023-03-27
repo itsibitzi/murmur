@@ -100,6 +100,34 @@
     },
     "query": "\n            SELECT \n                file_jobs.id AS \"job_id: JobId\",\n                file_id AS \"file_id: FileId\",\n                language AS \"language: Language\",\n                quality AS \"quality: TranslationQuality\",\n                status AS \"status: JobStatus\",\n                data\n            FROM file_jobs\n            INNER JOIN files ON (file_id = files.id)\n            WHERE status = 'waiting'\n            ORDER BY file_jobs.id DESC\n            LIMIT 1\n            "
   },
+  "570106ac700ddc88e1472d83e6441e5893349e33e5d8ee82dd4ec16023b88afd": {
+    "describe": {
+      "columns": [
+        {
+          "name": "data: Vec<u8>",
+          "ordinal": 0,
+          "type_info": "Blob"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "\n            SELECT \n                data AS \"data: Vec<u8>\"\n            FROM files \n            WHERE id = ?"
+  },
+  "8b3d646d66ea8c108447bc58eb8aa5e9dbe0a48193ae1ca94e2f261d17dd93a5": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 7
+      }
+    },
+    "query": "\n                INSERT INTO segments (file_id, job_id, number, start, end, text, speaker_id)\n                VALUES (?, ?, ?, ?, ?, ?, ?)\n                "
+  },
   "8c2f6656d6450367d809972a036614682c4d541d93d2b771dc6b798934dc955d": {
     "describe": {
       "columns": [],
@@ -110,15 +138,47 @@
     },
     "query": "\n            INSERT INTO file_jobs (file_id, language, quality, status)\n                VALUES (?, ?, ?, ?)\n            "
   },
-  "9a8f57eb60b82a9b327652715c4d0a363ca9f54cdd98f27a31c58a8e777bab72": {
+  "93cd9aed4b825392f1777aabc5eb50c941c296bd833ea835563b551f571fd8c1": {
     "describe": {
-      "columns": [],
-      "nullable": [],
+      "columns": [
+        {
+          "name": "number: i32",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "start: i64",
+          "ordinal": 1,
+          "type_info": "Int64"
+        },
+        {
+          "name": "end: i64",
+          "ordinal": 2,
+          "type_info": "Int64"
+        },
+        {
+          "name": "text: String",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "speaker_id: String",
+          "ordinal": 4,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
       "parameters": {
-        "Right": 6
+        "Right": 1
       }
     },
-    "query": "\n                INSERT INTO segments (file_id, job_id, number, start, end, text)\n                VALUES (?, ?, ?, ?, ?, ?)\n                "
+    "query": "\n            SELECT \n                number     AS \"number: i32\",\n                start      AS \"start: i64\",\n                end        AS \"end: i64\",\n                text       AS \"text: String\",\n                speaker_id AS \"speaker_id: String\"\n            FROM segments\n            WHERE file_id = ?"
   },
   "afc13691ddbd9a18048c34d3d2f42b50be0258a576143f5746645d898e09c169": {
     "describe": {
@@ -130,7 +190,17 @@
     },
     "query": "\n            UPDATE file_jobs SET status = ? WHERE id = ?\n            "
   },
-  "c44c6dc45f0e6b90a7388bb9364eefa34682d8b65faee50e954cb4d0c9646ee6": {
+  "ef38c9ff95e483b0618679c9077786373185443b42d3e29f625e876880c39574": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 2
+      }
+    },
+    "query": "\n            INSERT INTO segment_speakers (id, name)\n            VALUES (?, ?)\n            "
+  },
+  "fef6d1ada165463f213cd3dc3035c70ac7cf3fecf61e2daed9569c2118a20448": {
     "describe": {
       "columns": [
         {
@@ -142,15 +212,9 @@
           "name": "name: String",
           "ordinal": 1,
           "type_info": "Text"
-        },
-        {
-          "name": "data: Vec<u8>",
-          "ordinal": 2,
-          "type_info": "Blob"
         }
       ],
       "nullable": [
-        false,
         false,
         false
       ],
@@ -158,6 +222,6 @@
         "Right": 0
       }
     },
-    "query": "\n            SELECT\n                id AS \"id: FileId\",\n                name AS \"name: String\",\n                data AS \"data: Vec<u8>\"\n            FROM files\n            "
+    "query": "\n            SELECT\n                id AS \"id: FileId\",\n                name AS \"name: String\"\n            FROM files\n            "
   }
 }

@@ -2,9 +2,11 @@
 
 use clap::ValueEnum;
 use serde::{Deserialize, Serialize};
+use ts_rs::TS;
 
-#[derive(Clone, Debug, PartialEq, Eq, ValueEnum, Serialize, Deserialize, sqlx::Type)]
+#[derive(TS, Clone, Debug, PartialEq, Eq, ValueEnum, Serialize, Deserialize, sqlx::Type)]
 #[sqlx(rename_all = "lowercase")]
+#[ts(export)]
 pub enum Language {
     English,
     Chinese,

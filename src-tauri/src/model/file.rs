@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use ts_rs::TS;
 
 use crate::language::Language;
 
@@ -7,30 +8,27 @@ use super::{
     translation_quality::TranslationQuality,
 };
 
-#[derive(Clone, Debug, sqlx::Type, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(TS, Clone, Debug, sqlx::Type, Serialize, Deserialize, PartialEq, Eq)]
 #[sqlx(transparent)]
+#[ts(export)]
 pub struct FileId(pub String);
 
-#[derive(Serialize)]
+#[derive(TS, Serialize)]
+#[ts(export)]
 pub struct File {
     pub id: FileId,
     pub name: String,
-    pub data: Vec<u8>,
     pub jobs: Vec<FileJob>,
 }
 
 impl File {
-    pub fn new(id: FileId, name: String, data: Vec<u8>, jobs: Vec<FileJob>) -> Self {
-        Self {
-            id,
-            name,
-            data,
-            jobs,
-        }
+    pub fn new(id: FileId, name: String, jobs: Vec<FileJob>) -> Self {
+        Self { id, name, jobs }
     }
 }
 
-#[derive(Serialize)]
+#[derive(TS, Serialize)]
+#[ts(export)]
 pub struct FileJob {
     pub id: JobId,
     pub language: Language,

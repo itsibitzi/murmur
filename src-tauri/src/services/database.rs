@@ -49,6 +49,22 @@ impl Database {
         Ok(maybe_job)
     }
 
+    pub async fn begin_job(&self, job_id: &JobId) -> anyhow::Result<()> {
+        let mut conn = self.pool.acquire().await?;
+
+        sqlx::query!(
+            r#"
+            UPDATE file_jobs SET status = ? WHERE id = ?
+            "#,
+            JobStatus::InProgress,
+            job_id
+        )
+        .execute(&mut conn)
+        .await?;
+
+        Ok(())
+    }
+
     pub async fn fail_job(&self, job_id: &JobId) -> anyhow::Result<()> {
         let mut conn = self.pool.acquire().await?;
 
@@ -72,8 +88,7 @@ impl Database {
             r#"
             SELECT
                 id AS "id: FileId",
-                name AS "name: String",
-                data AS "data: Vec<u8>"
+                name AS "name: String"
             FROM files
             "#
         )
@@ -113,7 +128,7 @@ impl Database {
                     })
                     .collect();
 
-                File::new(file_row.id, file_row.name, file_row.data, jobs)
+                File::new(file_row.id, file_row.name, jobs)
             })
             .collect();
 
@@ -169,11 +184,24 @@ impl Database {
     ) -> anyhow::Result<()> {
         let mut tx = self.pool.begin().await?;
 
+        let Some(speaker_id) = segments.get(0).map(|s| &s.speaker_id) else {return Ok(())};
+
+        sqlx::query!(
+            r#"
+            INSERT INTO segment_speakers (id, name)
+            VALUES (?, ?)
+            "#,
+            speaker_id,
+            "default"
+        )
+        .execute(&mut tx)
+        .await?;
+
         for segment in segments {
             sqlx::query!(
                 r#"
-                INSERT INTO segments (file_id, job_id, number, start, end, text)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO segments (file_id, job_id, number, start, end, text, speaker_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
                 "#,
                 file_id,
                 job_id,
@@ -181,6 +209,7 @@ impl Database {
                 segment.start,
                 segment.end,
                 segment.text,
+                segment.speaker_id
             )
             .execute(&mut tx)
             .await?;
@@ -199,5 +228,44 @@ impl Database {
         tx.commit().await?;
 
         Ok(())
+    }
+
+    pub async fn select_segments(&self, file_id: &FileId) -> anyhow::Result<Vec<Segment>> {
+        let mut conn = self.pool.acquire().await?;
+
+        let segments = sqlx::query_as!(
+            Segment,
+            r#"
+            SELECT 
+                number     AS "number: i32",
+                start      AS "start: i64",
+                end        AS "end: i64",
+                text       AS "text: String",
+                speaker_id AS "speaker_id: String"
+            FROM segments
+            WHERE file_id = ?"#,
+            file_id,
+        )
+        .fetch_all(&mut conn)
+        .await?;
+
+        Ok(segments)
+    }
+
+    pub async fn select_file_data(&self, file_id: &FileId) -> anyhow::Result<Vec<u8>> {
+        let mut conn = self.pool.acquire().await?;
+
+        let row = sqlx::query!(
+            r#"
+            SELECT 
+                data AS "data: Vec<u8>"
+            FROM files 
+            WHERE id = ?"#,
+            file_id,
+        )
+        .fetch_one(&mut conn)
+        .await?;
+
+        Ok(row.data)
     }
 }

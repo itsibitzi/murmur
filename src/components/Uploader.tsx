@@ -2,16 +2,20 @@ import {
   EuiButton,
   EuiComboBox,
   EuiComboBoxOptionOption,
-  EuiEmptyPrompt,
   EuiFormRow,
-  EuiImage,
   EuiLoadingSpinner,
+  EuiModal,
+  EuiModalBody,
+  EuiModalFooter,
+  EuiModalHeader,
+  EuiModalHeaderTitle,
+  EuiText,
 } from "@elastic/eui";
 import styled from "@emotion/styled";
 import { invoke } from "@tauri-apps/api";
 import { open } from "@tauri-apps/api/dialog";
 import { FC, useState } from "react";
-import logo from "./assets/stolas.png";
+import { useConfigStore } from "../state/config";
 
 const Actions = styled.div`
   display: flex;
@@ -26,25 +30,21 @@ const Center = styled.div`
   align-items: center;
 `;
 
-const ACCEPTED_EXTENSIONS = [".mp3", ".aac", ".m4a"].join(",");
+type UploaderProps = { setShowUploadModal: (open: boolean) => void };
 
-type UploaderProps = {
-  languages: string[];
-  transcriptionQualityLevels: string[];
-  setTranscription: (transcription: any) => void;
-};
+export const Uploader: FC<UploaderProps> = ({ setShowUploadModal }) => {
+  const languages = useConfigStore((state) => state.languages);
+  const translationQualityLevels = useConfigStore(
+    (state) => state.translationQualityLevels
+  );
 
-export const Uploader: FC<UploaderProps> = ({
-  languages,
-  transcriptionQualityLevels,
-}) => {
-  const [loading, setLoading] = useState(false);
+  const [state, setState] = useState<"ready" | "uploading" | "done">("ready");
 
   const [filename, setFileName] = useState<string | undefined>(undefined);
   const [path, setPath] = useState<string | undefined>();
 
   const languageOptions = languages.map((l) => ({ label: l }));
-  const qualityLevelOptions = transcriptionQualityLevels.map((t) => ({
+  const qualityLevelOptions = translationQualityLevels.map((t) => ({
     label: t,
   }));
 
@@ -63,8 +63,8 @@ export const Uploader: FC<UploaderProps> = ({
     setQuality(e[0]);
   };
 
-  const submit = async () => {
-    setLoading(true);
+  const submit = () => {
+    setState("uploading");
 
     const req = {
       path,
@@ -73,26 +73,28 @@ export const Uploader: FC<UploaderProps> = ({
     };
 
     try {
-      await invoke("upload_file", { req });
-      setLoading(false);
+      console.log(state);
+      invoke("upload_file", { req }).then(() => {
+        setState("done");
+      });
     } catch (e) {
       console.error(e);
     }
   };
 
   return (
-    <EuiEmptyPrompt
-      icon={<EuiImage size="fullWidth" src={logo} alt="" />}
-      layout="horizontal"
-      color="plain"
-      title={<h2>Murmur</h2>}
-      body={
-        <>
-          <p>Transcribe audio files from various languages.</p>
-        </>
-      }
-      actions={
-        loading ? (
+    <EuiModal onClose={() => setShowUploadModal(false)}>
+      <EuiModalHeader>
+        <EuiModalHeaderTitle>Upload</EuiModalHeaderTitle>
+      </EuiModalHeader>
+
+      <EuiModalBody>
+        {state === "done" ? (
+          <EuiText>
+            Upload complete. You can continue using the app while we process the
+            file.
+          </EuiText>
+        ) : state === "uploading" ? (
           <Center>
             <EuiLoadingSpinner size="xxl" />
           </Center>
@@ -142,19 +144,33 @@ export const Uploader: FC<UploaderProps> = ({
             >
               {filename ? filename : "Select Audio File"}
             </EuiButton>
-
-            <EuiButton
-              color="primary"
-              disabled={
-                language === undefined || quality == undefined || path === null
-              }
-              onClick={submit}
-            >
-              Submit
-            </EuiButton>
           </Actions>
-        )
-      }
-    />
+        )}
+      </EuiModalBody>
+
+      <EuiModalFooter>
+        <EuiButton
+          color={state === "done" ? "primary" : "ghost"}
+          onClick={() => setShowUploadModal(false)}
+          fill
+        >
+          Close
+        </EuiButton>
+        {state !== "done" && (
+          <EuiButton
+            color="primary"
+            disabled={
+              state === "uploading" ||
+              language === undefined ||
+              quality == undefined ||
+              path === null
+            }
+            onClick={submit}
+          >
+            Submit
+          </EuiButton>
+        )}
+      </EuiModalFooter>
+    </EuiModal>
   );
 };

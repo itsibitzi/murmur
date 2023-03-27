@@ -1,6 +1,7 @@
 use std::path::Path;
 
 use rubato::{InterpolationParameters, InterpolationType, Resampler, SincFixedIn, WindowFunction};
+use uuid::Uuid;
 use whisper_rs::{FullParams, SamplingStrategy, WhisperContext};
 
 use crate::{language::Language, model::segment::Segment};
@@ -20,6 +21,7 @@ pub fn process_file(
     params.set_print_progress(false);
     params.set_print_realtime(false);
     params.set_print_timestamps(false);
+    params.set_max_len(1);
 
     // Threads
     let cpu_count = num_cpus::get() as i32;
@@ -89,12 +91,14 @@ pub fn process_file(
         let text = ctx.full_get_segment_text(i).expect("failed to get segment");
         let start = ctx.full_get_segment_t0(i);
         let end = ctx.full_get_segment_t1(i);
+        let speaker_id = Uuid::new_v4().to_string();
 
         segments.push(Segment {
             number: i,
             start,
             end,
             text,
+            speaker_id,
         })
     }
 

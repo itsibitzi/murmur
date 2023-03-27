@@ -1,6 +1,12 @@
+use base64::{engine::general_purpose, Engine};
+
 use crate::{
     error::Error,
-    model::{file::File, requests::UploadFileRequest},
+    model::{
+        file::{File, FileId},
+        requests::UploadFileRequest,
+        segment::Segment,
+    },
     services::database::Database,
 };
 
@@ -30,4 +36,31 @@ pub async fn get_files(db: tauri::State<'_, Database>) -> Result<Vec<File>, Erro
     db.select_files()
         .await
         .map_err(|e| Error::DatabaseError(e.to_string()))
+}
+
+#[tauri::command]
+pub async fn get_segments(
+    file_id: FileId,
+    db: tauri::State<'_, Database>,
+) -> Result<Vec<Segment>, Error> {
+    println!("Getting {:?}", file_id);
+    db.select_segments(&file_id)
+        .await
+        .map_err(|e| Error::DatabaseError(e.to_string()))
+}
+
+#[tauri::command]
+pub async fn get_file_data(
+    file_id: FileId,
+    db: tauri::State<'_, Database>,
+) -> Result<String, Error> {
+    println!("Getting {:?}", file_id);
+    let data = db
+        .select_file_data(&file_id)
+        .await
+        .map_err(|e| Error::DatabaseError(e.to_string()))?;
+
+    let data_base64 = general_purpose::STANDARD.encode(data);
+
+    Ok(data_base64)
 }
