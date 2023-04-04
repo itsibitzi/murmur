@@ -11,7 +11,7 @@ export const Controls: FC<ControlsProps> = ({ onPlay, onPause, onEdit }) => {
   const [playing, setPlaying] = useState(false);
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 flex flex-row items-center bg-fuchsia-200 p-4 pt-2">
+    <div className="fixed bottom-0 left-0 right-0 flex flex-row items-center bg-slate-200 p-4 pt-2">
       <Button onClick={() => onEdit()}>Edit</Button>
       <Button
         onClick={() => {
