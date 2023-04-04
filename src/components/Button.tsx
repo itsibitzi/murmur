@@ -1,25 +1,38 @@
 import { FC, ReactNode } from "react";
 
 type ButtonProps = {
-  onClick: () => void;
+  onClick?: () => void;
   disabled?: boolean;
   children: ReactNode;
   color?: "danger";
+  counter?: number;
 };
 export const Button: FC<ButtonProps> = ({
   onClick,
   children,
   color,
   disabled,
+  counter,
 }) => {
-  let colorClass = color === "danger" ? "bg-red-300" : "bg-blue-300";
+  let colorClass = disabled
+    ? "bg-slate-300"
+    : color === "danger"
+    ? "bg-red-300"
+    : "bg-blue-300";
+
+  const showCounter = counter && counter !== 0;
 
   return (
     <button
-      className={`m-2 h-10 rounded p-2 pl-6 pr-6 shadow ${colorClass}`}
+      className={`relative m-2 h-10 rounded p-2 pl-6 pr-6 shadow ${colorClass}`}
       onClick={onClick}
       disabled={disabled}
     >
+      {!!showCounter && (
+        <span className="bg-red text-align-center absolute right-[-5px] top-[-5px] h-6 w-6 rounded-full bg-red-400 font-bold text-white">
+          {counter}
+        </span>
+      )}
       {children}
     </button>
   );

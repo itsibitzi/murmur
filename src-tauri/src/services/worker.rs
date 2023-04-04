@@ -25,7 +25,6 @@ impl Worker {
 
     pub async fn begin(&self) {
         loop {
-            println!("Polling for job");
             if let Ok(Some(task)) = self.db.select_next_job().await {
                 println!("Found job {}!", task.job_id.0);
                 if let Err(e) = self.db.begin_job(&task.job_id).await {

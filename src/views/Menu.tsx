@@ -2,6 +2,7 @@ import { EuiCard, EuiFlexGroup, EuiFlexItem, EuiPopover } from "@elastic/eui";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { Button } from "../components/Button";
+import { DropDown, DropDownItem } from "../components/DropDown";
 import { JobProgress } from "../components/JobProgress";
 import { Body } from "../components/layout/Body";
 import { Header } from "../components/layout/Header";
@@ -29,38 +30,27 @@ export const Menu = () => {
     };
   }, [fetchFiles]);
 
+  const jobCount = files
+    .flatMap((file) => file.jobs)
+    .filter((job) => job.status !== "Done").length;
+
   return (
     <>
       <Header
         title="Files"
         right={
-          <>
-            <Button
-              onClick={() => {
-                setShowUploadModal(true);
-              }}
-            >
-              Upload
-            </Button>
-            <EuiPopover
-              button={
-                <Button
-                  onClick={() => setShowJobPopover(!showJobPopover)}
-                  disabled={
-                    files
-                      .flatMap((file) => file.jobs)
-                      .filter((job) => job.status !== "Done").length === 0
-                  }
-                >
-                  Jobs
-                </Button>
-              }
-              isOpen={showJobPopover}
-              closePopover={() => setShowJobPopover(false)}
-            >
-              <JobProgress closePopover={() => setShowJobPopover(false)} />
-            </EuiPopover>
-          </>
+          <DropDown
+            proxy={<Button>Stuff</Button>}
+            items={[
+              <DropDownItem
+                text={"Add Audio"}
+                onClick={() => {
+                  setShowUploadModal(true);
+                }}
+              />,
+              <DropDownItem text={"Jobs go here"} />,
+            ]}
+          />
         }
       ></Header>
       <Body>
