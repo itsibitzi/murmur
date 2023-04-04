@@ -1,12 +1,15 @@
+use anyhow::bail;
 use sqlx::SqlitePool;
 use uuid::Uuid;
 
 use crate::{
     language::Language,
     model::{
+        editor_data::EditorData,
         file::{File, FileId, FileJob},
         job::{Job, JobId, JobStatus},
         segment::Segment,
+        speaker::{Speaker, SpeakerSpan, DEFAULT_SPEAKER_ID},
         translation_quality::TranslationQuality,
     },
 };
@@ -31,10 +34,11 @@ impl Database {
             r#"
             SELECT 
                 file_jobs.id AS "job_id: JobId",
-                file_id AS "file_id: FileId",
-                language AS "language: Language",
-                quality AS "quality: TranslationQuality",
-                status AS "status: JobStatus",
+                name         AS "name: String",
+                file_id      AS "file_id: FileId",
+                language     AS "language: Language",
+                quality      AS "quality: TranslationQuality",
+                status       AS "status: JobStatus",
                 data
             FROM file_jobs
             INNER JOIN files ON (file_id = files.id)
@@ -184,15 +188,17 @@ impl Database {
     ) -> anyhow::Result<()> {
         let mut tx = self.pool.begin().await?;
 
-        let Some(speaker_id) = segments.get(0).map(|s| &s.speaker_id) else {return Ok(())};
+        let Some(min_number) = segments.iter().min_by(|a, b| a.number.cmp(&b.number)).map(|s| s.number) else { bail!("Unable to find min number")};
 
         sqlx::query!(
             r#"
-            INSERT INTO segment_speakers (id, name)
-            VALUES (?, ?)
+            INSERT INTO speaker_spans (speaker_id, file_id, job_id, start_segment_number)
+            VALUES (?, ?, ?, ?)
             "#,
-            speaker_id,
-            "default"
+            DEFAULT_SPEAKER_ID,
+            file_id,
+            job_id,
+            min_number,
         )
         .execute(&mut tx)
         .await?;
@@ -200,8 +206,8 @@ impl Database {
         for segment in segments {
             sqlx::query!(
                 r#"
-                INSERT INTO segments (file_id, job_id, number, start, end, text, speaker_id)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO segments (file_id, job_id, number, start, end, text)
+                VALUES (?, ?, ?, ?, ?, ?)
                 "#,
                 file_id,
                 job_id,
@@ -209,7 +215,6 @@ impl Database {
                 segment.start,
                 segment.end,
                 segment.text,
-                segment.speaker_id
             )
             .execute(&mut tx)
             .await?;
@@ -230,26 +235,63 @@ impl Database {
         Ok(())
     }
 
-    pub async fn select_segments(&self, file_id: &FileId) -> anyhow::Result<Vec<Segment>> {
-        let mut conn = self.pool.acquire().await?;
+    pub async fn select_editor_data(&self, file_id: &FileId) -> anyhow::Result<EditorData> {
+        let mut tx = self.pool.begin().await?;
+
+        // TODO support multiple jobs!!!!!!!!
 
         let segments = sqlx::query_as!(
             Segment,
             r#"
             SELECT 
-                number     AS "number: i32",
-                start      AS "start: i64",
-                end        AS "end: i64",
-                text       AS "text: String",
-                speaker_id AS "speaker_id: String"
+                number AS "number: i32",
+                start  AS "start: i64",
+                end    AS "end: i64",
+                text   AS "text: String"
             FROM segments
             WHERE file_id = ?"#,
             file_id,
         )
-        .fetch_all(&mut conn)
+        .fetch_all(&mut tx)
         .await?;
 
-        Ok(segments)
+        let speaker_spans = sqlx::query_as!(
+            SpeakerSpan,
+            r#"
+            SELECT
+                speaker_id           AS "speaker_id: String",
+                start_segment_number AS "start_segment_number: i32"
+            FROM speaker_spans
+            WHERE file_id = ?"#,
+            file_id
+        )
+        .fetch_all(&mut tx)
+        .await?;
+
+        let speakers = sqlx::query_as!(
+            Speaker,
+            r#"
+            SELECT
+                id   AS "id: String",
+                name AS "name: String"
+            FROM speakers
+            WHERE id IN (
+                SELECT
+                    DISTINCT speaker_id 
+                FROM speaker_spans
+                WHERE file_id = ?
+            )"#,
+            file_id
+        )
+        .fetch_all(&mut tx)
+        .await?;
+
+        Ok(EditorData::new(
+            file_id.clone(),
+            segments,
+            speakers,
+            speaker_spans,
+        ))
     }
 
     pub async fn select_file_data(&self, file_id: &FileId) -> anyhow::Result<Vec<u8>> {
@@ -267,5 +309,20 @@ impl Database {
         .await?;
 
         Ok(row.data)
+    }
+
+    pub async fn delete_file(&self, file_id: &FileId) -> anyhow::Result<()> {
+        let mut conn = self.pool.acquire().await?;
+
+        sqlx::query!(
+            r#"
+            DELETE FROM files WHERE id = ? 
+            "#,
+            file_id
+        )
+        .execute(&mut conn)
+        .await?;
+
+        Ok(())
     }
 }

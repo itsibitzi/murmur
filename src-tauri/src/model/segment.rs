@@ -9,5 +9,4 @@ pub struct Segment {
     pub start: i64,
     pub end: i64,
     pub text: String,
-    pub speaker_id: String,
 }

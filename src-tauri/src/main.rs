@@ -1,3 +1,4 @@
+mod audio_format;
 mod cli_args;
 mod commands;
 mod error;
@@ -33,8 +34,9 @@ async fn main() -> anyhow::Result<()> {
             constants::get_translation_quality_levels,
             translate::upload_file,
             translate::get_files,
-            translate::get_segments,
+            translate::get_editor_data,
             translate::get_file_data,
+            translate::delete_file,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

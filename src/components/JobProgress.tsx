@@ -25,6 +25,8 @@ export const JobProgress: FC<JobProgressProps> = ({ closePopover }) => {
     closePopover();
   }
 
+  console.log(jobs);
+
   return (
     <Container>
       <EuiFlexGroup direction="column">

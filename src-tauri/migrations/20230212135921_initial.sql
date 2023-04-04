@@ -15,16 +15,22 @@ CREATE TABLE file_jobs (
     FOREIGN KEY (file_id) REFERENCES files(id) ON DELETE CASCADE
 );
 
-CREATE TABLE segment_speakers (
+CREATE TABLE speakers (
     id   TEXT PRIMARY KEY NOT NULL,
     name TEXT NOT NULL
 );
 
+INSERT INTO speakers (id, name) VALUES ('default_speaker', 'Unknown Speaker');
+
 CREATE TABLE speaker_spans (
-    id   TEXT PRIMARY KEY NOT NULL,
-    start_segment_number INT NOT NULL
-    end_segment_number INT NOT NULL
-    name TEXT NOT NULL
+    speaker_id           TEXT NOT NULL,
+    file_id              TEXT NOT NULL,
+    job_id               INTEGER NOT NULL,
+    start_segment_number INT NOT NULL,
+    PRIMARY KEY (job_id, start_segment_number),
+    FOREIGN KEY (speaker_id) REFERENCES speakers(id) ON DELETE CASCADE
+    FOREIGN KEY (job_id) REFERENCES file_jobs(id) ON DELETE CASCADE
+    FOREIGN KEY (file_id) REFERENCES files(id) ON DELETE CASCADE
 );
 
 CREATE TABLE segments (

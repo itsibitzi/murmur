@@ -1,9 +1,9 @@
-import { EuiPage, EuiPageBody, EuiProvider } from "@elastic/eui";
 import "@elastic/eui/dist/eui_theme_light.css";
 import React, { useEffect } from "react";
 import ReactDOM from "react-dom";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
 import "./icons";
+import "./index.css";
 import { useConfigStore } from "./state/config";
 import { Editor } from "./views/Editor";
 import { Menu } from "./views/Menu";
@@ -25,13 +25,9 @@ const App = () => {
 
   return (
     <React.StrictMode>
-      <EuiProvider colorMode="light">
-        <EuiPage paddingSize="none">
-          <EuiPageBody paddingSize="l">
-            <RouterProvider router={router} />
-          </EuiPageBody>
-        </EuiPage>
-      </EuiProvider>
+      <div className="fixed bottom-0 left-0 right-0 top-0 ">
+        <RouterProvider router={router} />
+      </div>
     </React.StrictMode>
   );
 };

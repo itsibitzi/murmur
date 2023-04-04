@@ -1,4 +1,4 @@
-use std::{path::PathBuf, time::Duration};
+use std::{io::Cursor, path::PathBuf, time::Duration};
 
 use tokio::time::sleep;
 
@@ -38,7 +38,9 @@ impl Worker {
                     TranslationQuality::Low => &self.low_quality_path,
                 };
 
-                match whisper::process_file(model_path, &task.data, task.language) {
+                let cursor = Cursor::new(task.data);
+
+                match whisper::process_file(model_path, cursor, task.language) {
                     Ok(segments) => {
                         println!("Finished job!");
                         self.db

@@ -13,6 +13,7 @@ pub struct JobId(pub i64);
 pub struct Job {
     pub job_id: JobId,
     pub file_id: FileId,
+    pub name: String,
     pub language: Language,
     pub quality: TranslationQuality,
     pub status: JobStatus,

@@ -1,14 +1,10 @@
-import {
-  EuiButton,
-  EuiCard,
-  EuiFlexGroup,
-  EuiFlexItem,
-  EuiPageTemplate,
-  EuiPopover,
-} from "@elastic/eui";
+import { EuiCard, EuiFlexGroup, EuiFlexItem, EuiPopover } from "@elastic/eui";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+import { Button } from "../components/Button";
 import { JobProgress } from "../components/JobProgress";
+import { Body } from "../components/layout/Body";
+import { Header } from "../components/layout/Header";
 import { Uploader } from "../components/Uploader";
 import { useFileStore } from "../state/files";
 
@@ -34,39 +30,40 @@ export const Menu = () => {
   }, [fetchFiles]);
 
   return (
-    <EuiPageTemplate grow={true}>
-      <EuiPageTemplate.Header
-        pageTitle="Murmur"
-        alignItems="top"
-        rightSideItems={[
-          <EuiButton
-            onClick={() => {
-              setShowUploadModal(true);
-            }}
-          >
-            Upload
-          </EuiButton>,
-          <EuiPopover
-            button={
-              <EuiButton
-                onClick={() => setShowJobPopover(!showJobPopover)}
-                disabled={
-                  files
-                    .flatMap((file) => file.jobs)
-                    .filter((job) => job.status !== "Done").length === 0
-                }
-              >
-                Jobs
-              </EuiButton>
-            }
-            isOpen={showJobPopover}
-            closePopover={() => setShowJobPopover(false)}
-          >
-            <JobProgress closePopover={() => setShowJobPopover(false)} />
-          </EuiPopover>,
-        ]}
-      ></EuiPageTemplate.Header>
-      <EuiPageTemplate.Section>
+    <>
+      <Header
+        title="Files"
+        right={
+          <>
+            <Button
+              onClick={() => {
+                setShowUploadModal(true);
+              }}
+            >
+              Upload
+            </Button>
+            <EuiPopover
+              button={
+                <Button
+                  onClick={() => setShowJobPopover(!showJobPopover)}
+                  disabled={
+                    files
+                      .flatMap((file) => file.jobs)
+                      .filter((job) => job.status !== "Done").length === 0
+                  }
+                >
+                  Jobs
+                </Button>
+              }
+              isOpen={showJobPopover}
+              closePopover={() => setShowJobPopover(false)}
+            >
+              <JobProgress closePopover={() => setShowJobPopover(false)} />
+            </EuiPopover>
+          </>
+        }
+      ></Header>
+      <Body>
         <EuiFlexGroup wrap={true}>
           {files
             .filter((file) => file.jobs.some((j) => j.status === "Done"))
@@ -81,8 +78,8 @@ export const Menu = () => {
               </EuiFlexItem>
             ))}
         </EuiFlexGroup>
-      </EuiPageTemplate.Section>
+      </Body>
       {showUploadModal && <Uploader setShowUploadModal={setShowUploadModal} />}
-    </EuiPageTemplate>
+    </>
   );
 };

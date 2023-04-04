@@ -10,6 +10,16 @@
     },
     "query": "\n            INSERT INTO files (id, name, data)\n                VALUES (?, ?, ?)\n            "
   },
+  "28db6e2ab983c4eddbfb0bc154492999dd23386b3b29d7918ef694ebefd995e4": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 4
+      }
+    },
+    "query": "\n            INSERT INTO speaker_spans (speaker_id, file_id, job_id, start_segment_number)\n            VALUES (?, ?, ?, ?)\n            "
+  },
   "38b4bb3827b4960c1da5cdf12303a96f7e0e1e27ea76e3381f7c3cc7014f81a1": {
     "describe": {
       "columns": [
@@ -52,54 +62,6 @@
     },
     "query": "\n            SELECT \n                id AS \"id: JobId\",\n                file_id AS \"file_id: FileId\",\n                language AS \"language: Language\",\n                quality AS \"quality: TranslationQuality\",\n                status AS \"status: JobStatus\"\n            FROM file_jobs\n            "
   },
-  "4e4323e37fd9c7fea6ddffc56f3dd44ea08ce58ec67313d99167894c78263bb8": {
-    "describe": {
-      "columns": [
-        {
-          "name": "job_id: JobId",
-          "ordinal": 0,
-          "type_info": "Int64"
-        },
-        {
-          "name": "file_id: FileId",
-          "ordinal": 1,
-          "type_info": "Text"
-        },
-        {
-          "name": "language: Language",
-          "ordinal": 2,
-          "type_info": "Text"
-        },
-        {
-          "name": "quality: TranslationQuality",
-          "ordinal": 3,
-          "type_info": "Text"
-        },
-        {
-          "name": "status: JobStatus",
-          "ordinal": 4,
-          "type_info": "Bool"
-        },
-        {
-          "name": "data",
-          "ordinal": 5,
-          "type_info": "Blob"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
-      ],
-      "parameters": {
-        "Right": 0
-      }
-    },
-    "query": "\n            SELECT \n                file_jobs.id AS \"job_id: JobId\",\n                file_id AS \"file_id: FileId\",\n                language AS \"language: Language\",\n                quality AS \"quality: TranslationQuality\",\n                status AS \"status: JobStatus\",\n                data\n            FROM file_jobs\n            INNER JOIN files ON (file_id = files.id)\n            WHERE status = 'waiting'\n            ORDER BY file_jobs.id DESC\n            LIMIT 1\n            "
-  },
   "570106ac700ddc88e1472d83e6441e5893349e33e5d8ee82dd4ec16023b88afd": {
     "describe": {
       "columns": [
@@ -118,27 +80,7 @@
     },
     "query": "\n            SELECT \n                data AS \"data: Vec<u8>\"\n            FROM files \n            WHERE id = ?"
   },
-  "8b3d646d66ea8c108447bc58eb8aa5e9dbe0a48193ae1ca94e2f261d17dd93a5": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Right": 7
-      }
-    },
-    "query": "\n                INSERT INTO segments (file_id, job_id, number, start, end, text, speaker_id)\n                VALUES (?, ?, ?, ?, ?, ?, ?)\n                "
-  },
-  "8c2f6656d6450367d809972a036614682c4d541d93d2b771dc6b798934dc955d": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Right": 4
-      }
-    },
-    "query": "\n            INSERT INTO file_jobs (file_id, language, quality, status)\n                VALUES (?, ?, ?, ?)\n            "
-  },
-  "93cd9aed4b825392f1777aabc5eb50c941c296bd833ea835563b551f571fd8c1": {
+  "5a5c336a76dbd368f9aee9a92ad258d09145ad07ecae4cf2e3abc45bad2fe362": {
     "describe": {
       "columns": [
         {
@@ -160,15 +102,9 @@
           "name": "text: String",
           "ordinal": 3,
           "type_info": "Text"
-        },
-        {
-          "name": "speaker_id: String",
-          "ordinal": 4,
-          "type_info": "Text"
         }
       ],
       "nullable": [
-        false,
         false,
         false,
         false,
@@ -178,7 +114,61 @@
         "Right": 1
       }
     },
-    "query": "\n            SELECT \n                number     AS \"number: i32\",\n                start      AS \"start: i64\",\n                end        AS \"end: i64\",\n                text       AS \"text: String\",\n                speaker_id AS \"speaker_id: String\"\n            FROM segments\n            WHERE file_id = ?"
+    "query": "\n            SELECT \n                number AS \"number: i32\",\n                start  AS \"start: i64\",\n                end    AS \"end: i64\",\n                text   AS \"text: String\"\n            FROM segments\n            WHERE file_id = ?"
+  },
+  "614b31bd2eebdab612e4953210cac4970bbba82008e39f899ee4992dc6d7cf01": {
+    "describe": {
+      "columns": [
+        {
+          "name": "speaker_id: String",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "start_segment_number: i32",
+          "ordinal": 1,
+          "type_info": "Int64"
+        }
+      ],
+      "nullable": [
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "\n            SELECT\n                speaker_id           AS \"speaker_id: String\",\n                start_segment_number AS \"start_segment_number: i32\"\n            FROM speaker_spans\n            WHERE file_id = ?"
+  },
+  "78845a8ae423ca2f527986694ba622c73bcfe6533f3ef6527252d88d789248bc": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "\n            DELETE FROM files WHERE id = ? \n            "
+  },
+  "8c2f6656d6450367d809972a036614682c4d541d93d2b771dc6b798934dc955d": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 4
+      }
+    },
+    "query": "\n            INSERT INTO file_jobs (file_id, language, quality, status)\n                VALUES (?, ?, ?, ?)\n            "
+  },
+  "9a8f57eb60b82a9b327652715c4d0a363ca9f54cdd98f27a31c58a8e777bab72": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 6
+      }
+    },
+    "query": "\n                INSERT INTO segments (file_id, job_id, number, start, end, text)\n                VALUES (?, ?, ?, ?, ?, ?)\n                "
   },
   "afc13691ddbd9a18048c34d3d2f42b50be0258a576143f5746645d898e09c169": {
     "describe": {
@@ -190,15 +180,83 @@
     },
     "query": "\n            UPDATE file_jobs SET status = ? WHERE id = ?\n            "
   },
-  "ef38c9ff95e483b0618679c9077786373185443b42d3e29f625e876880c39574": {
+  "d956ddaacbddeb685983478e74dd9a73149e2dbdb9f8a7a94fadbd382eabfcd7": {
     "describe": {
-      "columns": [],
-      "nullable": [],
+      "columns": [
+        {
+          "name": "job_id: JobId",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "name: String",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "file_id: FileId",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "language: Language",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "quality: TranslationQuality",
+          "ordinal": 4,
+          "type_info": "Text"
+        },
+        {
+          "name": "status: JobStatus",
+          "ordinal": 5,
+          "type_info": "Bool"
+        },
+        {
+          "name": "data",
+          "ordinal": 6,
+          "type_info": "Blob"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
       "parameters": {
-        "Right": 2
+        "Right": 0
       }
     },
-    "query": "\n            INSERT INTO segment_speakers (id, name)\n            VALUES (?, ?)\n            "
+    "query": "\n            SELECT \n                file_jobs.id AS \"job_id: JobId\",\n                name         AS \"name: String\",\n                file_id      AS \"file_id: FileId\",\n                language     AS \"language: Language\",\n                quality      AS \"quality: TranslationQuality\",\n                status       AS \"status: JobStatus\",\n                data\n            FROM file_jobs\n            INNER JOIN files ON (file_id = files.id)\n            WHERE status = 'waiting'\n            ORDER BY file_jobs.id DESC\n            LIMIT 1\n            "
+  },
+  "f4ea55bb7450b4bbfdd0346739588a719901ff3144da0538cc87d71eed9433d0": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id: String",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "name: String",
+          "ordinal": 1,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "\n            SELECT\n                id   AS \"id: String\",\n                name AS \"name: String\"\n            FROM speakers\n            WHERE id IN (\n                SELECT\n                    DISTINCT speaker_id \n                FROM speaker_spans\n                WHERE file_id = ?\n            )"
   },
   "fef6d1ada165463f213cd3dc3035c70ac7cf3fecf61e2daed9569c2118a20448": {
     "describe": {
