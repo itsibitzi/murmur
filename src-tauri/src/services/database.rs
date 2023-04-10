@@ -1,4 +1,5 @@
 use anyhow::bail;
+use chrono::{DateTime, Utc};
 use sqlx::SqlitePool;
 use uuid::Uuid;
 
@@ -106,7 +107,8 @@ impl Database {
                 file_id AS "file_id: FileId",
                 language AS "language: Language",
                 quality AS "quality: TranslationQuality",
-                status AS "status: JobStatus"
+                status AS "status: JobStatus",
+                created_at AS "created_at: DateTime<Utc>"
             FROM file_jobs
             "#
         )
@@ -128,6 +130,7 @@ impl Database {
                             job_row.language.clone(),
                             job_row.quality.clone(),
                             job_row.status.clone(),
+                            job_row.created_at,
                         ))
                     })
                     .collect();
@@ -162,15 +165,18 @@ impl Database {
         .execute(&mut tx)
         .await?;
 
+        let now = Utc::now();
+
         sqlx::query!(
             r#"
-            INSERT INTO file_jobs (file_id, language, quality, status)
-                VALUES (?, ?, ?, ?)
+            INSERT INTO file_jobs (file_id, language, quality, status, created_at)
+                VALUES (?, ?, ?, ?, ?)
             "#,
             id,
             language,
             quality,
             JobStatus::Waiting,
+            now,
         )
         .execute(&mut tx)
         .await?;
@@ -319,6 +325,29 @@ impl Database {
             DELETE FROM files WHERE id = ? 
             "#,
             file_id
+        )
+        .execute(&mut conn)
+        .await?;
+
+        Ok(())
+    }
+    pub async fn update_segment(
+        &self,
+        file_id: &FileId,
+        job_id: &JobId,
+        number: i32,
+        text: &str,
+    ) -> anyhow::Result<()> {
+        let mut conn = self.pool.acquire().await?;
+
+        sqlx::query!(
+            r#"
+            UPDATE segments SET text = ? WHERE file_id = ? AND job_id = ? AND number = ?
+            "#,
+            text,
+            file_id,
+            job_id,
+            number
         )
         .execute(&mut conn)
         .await?;

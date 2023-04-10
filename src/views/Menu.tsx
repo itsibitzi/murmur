@@ -1,9 +1,13 @@
-import { EuiCard, EuiFlexGroup, EuiFlexItem, EuiPopover } from "@elastic/eui";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+import { AudioFile } from "../components/AudioFile";
 import { Button } from "../components/Button";
-import { DropDown, DropDownItem } from "../components/DropDown";
-import { JobProgress } from "../components/JobProgress";
+import {
+  DropDown,
+  DropDownItem,
+  DropDownSeparator,
+} from "../components/DropDown";
+import { MenuIcon } from "../components/icons/MenuIcon";
 import { Body } from "../components/layout/Body";
 import { Header } from "../components/layout/Header";
 import { Uploader } from "../components/Uploader";
@@ -40,34 +44,39 @@ export const Menu = () => {
         title="Files"
         right={
           <DropDown
-            proxy={<Button>Stuff</Button>}
-            items={[
+            proxy={
+              <Button>
+                <MenuIcon />
+              </Button>
+            }
+          >
+            <>
               <DropDownItem
                 text={"Add Audio"}
                 onClick={() => {
                   setShowUploadModal(true);
                 }}
-              />,
-              <DropDownItem text={"Jobs go here"} />,
-            ]}
-          />
+              />
+              <DropDownSeparator />
+              <DropDownItem text={"Jobs go here"} />
+            </>
+          </DropDown>
         }
       ></Header>
       <Body>
-        <EuiFlexGroup wrap={true}>
+        <div className="flex flex-row flex-wrap">
           {files
             .filter((file) => file.jobs.some((j) => j.status === "Done"))
             .map((item) => (
-              <EuiFlexItem key={item.id} style={{ minWidth: "300px" }}>
-                <EuiCard
-                  title={`${item.name}`}
-                  onClick={() => {
-                    navigate(`/editor/${item.id}`);
-                  }}
-                />
-              </EuiFlexItem>
+              <AudioFile
+                key={item.id}
+                file={item}
+                onClick={() => {
+                  navigate(`/editor/${item.id}`);
+                }}
+              />
             ))}
-        </EuiFlexGroup>
+        </div>
       </Body>
       {showUploadModal && <Uploader setShowUploadModal={setShowUploadModal} />}
     </>

@@ -1,4 +1,4 @@
-import { FC, ReactElement, ReactNode, useState } from "react";
+import { FC, ReactNode, useState } from "react";
 
 type DropDownItemProps = {
   text: string;
@@ -13,20 +13,24 @@ export const DropDownItem: FC<DropDownItemProps> = ({ text, onClick }) => {
   );
 };
 
-type DropDownProps = {
-  proxy: ReactNode;
-  items: ReactElement<DropDownItemProps>[];
+export const DropDownSeparator: FC = () => {
+  return <div className="my-1 border-t border-slate-400"></div>;
 };
 
-export const DropDown: FC<DropDownProps> = ({ proxy, items }) => {
+type DropDownProps = {
+  proxy: ReactNode;
+  children: ReactNode;
+};
+
+export const DropDown: FC<DropDownProps> = ({ proxy, children }) => {
   const [open, setOpen] = useState(false);
 
   return (
     <div className="relative">
       <div onClick={() => setOpen(true)}>{proxy}</div>
       {open && (
-        <div className="top-100% absolute right-0 z-10 w-40 rounded bg-slate-300 shadow-lg">
-          <div className="flex flex-col ">{items}</div>
+        <div className="top-100% z-100 absolute right-0 w-40 rounded bg-slate-300 shadow-lg">
+          <div className="flex flex-col ">{children}</div>
         </div>
       )}
     </div>

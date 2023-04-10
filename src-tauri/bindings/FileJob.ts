@@ -4,4 +4,4 @@ import type { JobStatus } from "./JobStatus";
 import type { Language } from "./Language";
 import type { TranslationQuality } from "./TranslationQuality";
 
-export interface FileJob { id: JobId, language: Language, quality: TranslationQuality, status: JobStatus, }
+export interface FileJob { id: JobId, language: Language, quality: TranslationQuality, status: JobStatus, createdAt: string, }

@@ -10,6 +10,16 @@
     },
     "query": "\n            INSERT INTO files (id, name, data)\n                VALUES (?, ?, ?)\n            "
   },
+  "1bf980a510c5bbec9e627a2c30bf05a70521a6b4495c7cf37047558690c7632e": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 5
+      }
+    },
+    "query": "\n            INSERT INTO file_jobs (file_id, language, quality, status, created_at)\n                VALUES (?, ?, ?, ?, ?)\n            "
+  },
   "28db6e2ab983c4eddbfb0bc154492999dd23386b3b29d7918ef694ebefd995e4": {
     "describe": {
       "columns": [],
@@ -19,48 +29,6 @@
       }
     },
     "query": "\n            INSERT INTO speaker_spans (speaker_id, file_id, job_id, start_segment_number)\n            VALUES (?, ?, ?, ?)\n            "
-  },
-  "38b4bb3827b4960c1da5cdf12303a96f7e0e1e27ea76e3381f7c3cc7014f81a1": {
-    "describe": {
-      "columns": [
-        {
-          "name": "id: JobId",
-          "ordinal": 0,
-          "type_info": "Int64"
-        },
-        {
-          "name": "file_id: FileId",
-          "ordinal": 1,
-          "type_info": "Text"
-        },
-        {
-          "name": "language: Language",
-          "ordinal": 2,
-          "type_info": "Text"
-        },
-        {
-          "name": "quality: TranslationQuality",
-          "ordinal": 3,
-          "type_info": "Text"
-        },
-        {
-          "name": "status: JobStatus",
-          "ordinal": 4,
-          "type_info": "Bool"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false
-      ],
-      "parameters": {
-        "Right": 0
-      }
-    },
-    "query": "\n            SELECT \n                id AS \"id: JobId\",\n                file_id AS \"file_id: FileId\",\n                language AS \"language: Language\",\n                quality AS \"quality: TranslationQuality\",\n                status AS \"status: JobStatus\"\n            FROM file_jobs\n            "
   },
   "570106ac700ddc88e1472d83e6441e5893349e33e5d8ee82dd4ec16023b88afd": {
     "describe": {
@@ -150,15 +118,53 @@
     },
     "query": "\n            DELETE FROM files WHERE id = ? \n            "
   },
-  "8c2f6656d6450367d809972a036614682c4d541d93d2b771dc6b798934dc955d": {
+  "8fac782eb69000758590dc4a1f250ce8bf5db0ee4176a2c9b15765043dacc00b": {
     "describe": {
-      "columns": [],
-      "nullable": [],
+      "columns": [
+        {
+          "name": "id: JobId",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "file_id: FileId",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "language: Language",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "quality: TranslationQuality",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "status: JobStatus",
+          "ordinal": 4,
+          "type_info": "Bool"
+        },
+        {
+          "name": "created_at: DateTime<Utc>",
+          "ordinal": 5,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
       "parameters": {
-        "Right": 4
+        "Right": 0
       }
     },
-    "query": "\n            INSERT INTO file_jobs (file_id, language, quality, status)\n                VALUES (?, ?, ?, ?)\n            "
+    "query": "\n            SELECT \n                id AS \"id: JobId\",\n                file_id AS \"file_id: FileId\",\n                language AS \"language: Language\",\n                quality AS \"quality: TranslationQuality\",\n                status AS \"status: JobStatus\",\n                created_at AS \"created_at: DateTime<Utc>\"\n            FROM file_jobs\n            "
   },
   "9a8f57eb60b82a9b327652715c4d0a363ca9f54cdd98f27a31c58a8e777bab72": {
     "describe": {

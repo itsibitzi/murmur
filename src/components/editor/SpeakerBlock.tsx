@@ -15,8 +15,8 @@ export const SpeakerBlock: FC<SpeakerBlockProps> = ({
   currentTime,
 }) => {
   return (
-    <div className="mb-2 rounded border-slate-900 bg-slate-100 p-3 shadow-md even:bg-slate-200">
-      <h2 className="text-lg font-bold">{speaker.name}</h2>
+    <div className="mb-2 rounded border-slate-900 bg-white p-3 shadow-md even:bg-slate-200">
+      <h2 className="mb-2 text-lg font-bold">{speaker.name}</h2>
       <div className="flex flex-col pl-4">
         {segments.map((segment: Segment) => {
           return (

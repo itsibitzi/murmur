@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
@@ -28,12 +29,15 @@ impl File {
 }
 
 #[derive(TS, Serialize)]
-#[ts(export)]
+#[serde(rename_all = "camelCase")]
+#[ts(export, rename_all = "camelCase")]
 pub struct FileJob {
     pub id: JobId,
     pub language: Language,
     pub quality: TranslationQuality,
     pub status: JobStatus,
+    #[ts(type = "string")]
+    pub created_at: DateTime<Utc>,
 }
 
 impl FileJob {
@@ -42,12 +46,14 @@ impl FileJob {
         language: Language,
         quality: TranslationQuality,
         status: JobStatus,
+        created_at: DateTime<Utc>,
     ) -> Self {
         Self {
             id,
             language,
             quality,
             status,
+            created_at,
         }
     }
 }

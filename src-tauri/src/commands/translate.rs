@@ -5,7 +5,7 @@ use crate::{
     model::{
         editor_data::EditorData,
         file::{File, FileId},
-        requests::UploadFileRequest,
+        requests::{edit_segment::EditSegmentRequest, UploadFileRequest},
     },
     services::database::Database,
 };
@@ -65,6 +65,16 @@ pub async fn get_file_data(
 
 #[tauri::command]
 pub async fn delete_file(file_id: FileId, db: tauri::State<'_, Database>) -> Result<(), Error> {
+    db.delete_file(&file_id)
+        .await
+        .map_err(|e| Error::DatabaseError(e.to_string()))
+}
+
+#[tauri::command]
+pub async fn update_segment(
+    req: EditSegmentRequest,
+    db: tauri::State<'_, Database>,
+) -> Result<(), Error> {
     db.delete_file(&file_id)
         .await
         .map_err(|e| Error::DatabaseError(e.to_string()))

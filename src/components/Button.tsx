@@ -17,8 +17,8 @@ export const Button: FC<ButtonProps> = ({
   let colorClass = disabled
     ? "bg-slate-300"
     : color === "danger"
-    ? "bg-red-300"
-    : "bg-blue-300";
+    ? "bg-red-300 hover:bg-red-400"
+    : "bg-blue-300 hover:bg-blue-400";
 
   const showCounter = counter && counter !== 0;
 
