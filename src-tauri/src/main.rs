@@ -37,6 +37,7 @@ async fn main() -> anyhow::Result<()> {
             translate::get_editor_data,
             translate::get_file_data,
             translate::delete_file,
+            translate::update_segment,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

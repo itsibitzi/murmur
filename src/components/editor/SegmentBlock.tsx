@@ -1,8 +1,13 @@
+import { invoke } from "@tauri-apps/api";
 import { FC, useState } from "react";
+import { FileId } from "../../model/bindings/FileId";
+import { JobId } from "../../model/bindings/JobId";
 import { Segment } from "../../model/bindings/Segment";
 import { Button } from "../Button";
 
 type SegmentBlockProps = {
+  fileId: FileId;
+  jobId: JobId;
   segment: Segment;
   currentTime: number | null;
 };
@@ -17,6 +22,8 @@ const tsToTime = (t: number): string => {
 };
 
 export const SegmentBlock: FC<SegmentBlockProps> = ({
+  jobId,
+  fileId,
   segment,
   currentTime,
 }) => {
@@ -54,6 +61,14 @@ export const SegmentBlock: FC<SegmentBlockProps> = ({
           value={value}
           onBlur={() => {
             setEditing(false);
+            invoke("update_segment", {
+              req: {
+                fileId,
+                jobId,
+                number: segment.number,
+                text: value,
+              },
+            });
           }}
           onChange={(e) => setValue(e.target.value)}
         />

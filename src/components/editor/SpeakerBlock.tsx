@@ -1,15 +1,21 @@
 import { FC } from "react";
+import { FileId } from "../../model/bindings/FileId";
+import { JobId } from "../../model/bindings/JobId";
 import { Segment } from "../../model/bindings/Segment";
 import { Speaker } from "../../model/bindings/Speaker";
 import { SegmentBlock } from "./SegmentBlock";
 
 type SpeakerBlockProps = {
+  fileId: FileId;
+  jobId: JobId;
   speaker: Speaker;
   segments: Segment[];
   currentTime: number | null;
 };
 
 export const SpeakerBlock: FC<SpeakerBlockProps> = ({
+  fileId,
+  jobId,
   speaker,
   segments,
   currentTime,
@@ -22,6 +28,8 @@ export const SpeakerBlock: FC<SpeakerBlockProps> = ({
           return (
             <SegmentBlock
               key={segment.number}
+              fileId={fileId}
+              jobId={jobId}
               segment={segment}
               currentTime={currentTime}
             />

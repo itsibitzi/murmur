@@ -244,7 +244,19 @@ impl Database {
     pub async fn select_editor_data(&self, file_id: &FileId) -> anyhow::Result<EditorData> {
         let mut tx = self.pool.begin().await?;
 
-        // TODO support multiple jobs!!!!!!!!
+        let job_ids = sqlx::query!(
+            r#"
+            SELECT id FROM file_jobs WHERE file_id = ?
+            "#,
+            file_id,
+        )
+        .fetch_all(&mut tx)
+        .await?
+        .into_iter()
+        .map(|row| JobId(row.id))
+        .collect::<Vec<JobId>>();
+
+        let default_job_id = *job_ids.iter().max_by(|a, b| a.0.cmp(&b.0)).unwrap();
 
         let segments = sqlx::query_as!(
             Segment,
@@ -255,8 +267,11 @@ impl Database {
                 end    AS "end: i64",
                 text   AS "text: String"
             FROM segments
-            WHERE file_id = ?"#,
+            WHERE 
+                file_id = ?
+                AND job_id = ?"#,
             file_id,
+            default_job_id
         )
         .fetch_all(&mut tx)
         .await?;
@@ -268,8 +283,11 @@ impl Database {
                 speaker_id           AS "speaker_id: String",
                 start_segment_number AS "start_segment_number: i32"
             FROM speaker_spans
-            WHERE file_id = ?"#,
-            file_id
+            WHERE 
+                file_id = ?
+                AND job_id = ?"#,
+            file_id,
+            default_job_id
         )
         .fetch_all(&mut tx)
         .await?;
@@ -285,15 +303,18 @@ impl Database {
                 SELECT
                     DISTINCT speaker_id 
                 FROM speaker_spans
-                WHERE file_id = ?
+                WHERE file_id = ? AND job_id = ?
             )"#,
-            file_id
+            file_id,
+            default_job_id
         )
         .fetch_all(&mut tx)
         .await?;
 
         Ok(EditorData::new(
             file_id.clone(),
+            default_job_id,
+            job_ids,
             segments,
             speakers,
             speaker_spans,

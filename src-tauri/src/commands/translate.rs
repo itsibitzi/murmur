@@ -75,7 +75,7 @@ pub async fn update_segment(
     req: EditSegmentRequest,
     db: tauri::State<'_, Database>,
 ) -> Result<(), Error> {
-    db.delete_file(&file_id)
+    db.update_segment(&req.file_id, &req.job_id, req.number, &req.text)
         .await
         .map_err(|e| Error::DatabaseError(e.to_string()))
 }

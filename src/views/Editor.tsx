@@ -9,6 +9,7 @@ import { Speakers } from "../components/editor/Speakers";
 import { Body } from "../components/layout/Body";
 import { Header } from "../components/layout/Header";
 import { EditorData } from "../model/bindings/EditorData";
+import { JobId } from "../model/bindings/JobId";
 import { Segment } from "../model/bindings/Segment";
 import { Speaker } from "../model/bindings/Speaker";
 import { SpeakerSpan } from "../model/bindings/SpeakerSpan";
@@ -21,6 +22,7 @@ export const Editor = () => {
 
   const [audio, setAudio] = useState<HTMLAudioElement | undefined>();
 
+  const [jobId, setJobId] = useState<JobId | null>(null);
   const [speakers, setSpeakers] = useState<Speaker[]>([]);
   const [speakerSpans, setSpeakerSpans] = useState<SpeakerSpan[]>([]);
   const [segments, setSegments] = useState<Segment[]>([]);
@@ -30,6 +32,7 @@ export const Editor = () => {
   useEffect(() => {
     invoke<EditorData>("get_editor_data", { fileId }).then((ed) => {
       console.log(ed);
+      setJobId(ed.defaultJobId);
       setSpeakers(ed.speakers);
       setSegments(ed.segments);
       setSpeakerSpans(ed.speakerSpans);
@@ -110,16 +113,22 @@ export const Editor = () => {
       <Body>
         <Speakers speakers={speakers} />
         <EuiSpacer />
-        {speakersWithSegments.map((speakerWithSegments, i) => {
-          return (
-            <SpeakerBlock
-              key={i}
-              speaker={speakerWithSegments.speaker}
-              segments={speakerWithSegments.segments}
-              currentTime={currentTime}
-            />
-          );
-        })}
+        {jobId && (
+          <>
+            {speakersWithSegments.map((speakerWithSegments, i) => {
+              return (
+                <SpeakerBlock
+                  key={i}
+                  fileId={fileId!}
+                  jobId={jobId}
+                  speaker={speakerWithSegments.speaker}
+                  segments={speakerWithSegments.segments}
+                  currentTime={currentTime}
+                />
+              );
+            })}
+          </>
+        )}
         <Controls
           onPause={onPause}
           onPlay={onPlay}

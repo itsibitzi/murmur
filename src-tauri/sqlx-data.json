@@ -30,6 +30,16 @@
     },
     "query": "\n            INSERT INTO speaker_spans (speaker_id, file_id, job_id, start_segment_number)\n            VALUES (?, ?, ?, ?)\n            "
   },
+  "47abf3e11567fb9ec1f1311a1455740f0d220fce3a54d7ab2bf28dc9111cc033": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 4
+      }
+    },
+    "query": "\n            UPDATE segments SET text = ? WHERE file_id = ? AND job_id = ? AND number = ?\n            "
+  },
   "570106ac700ddc88e1472d83e6441e5893349e33e5d8ee82dd4ec16023b88afd": {
     "describe": {
       "columns": [
@@ -48,43 +58,7 @@
     },
     "query": "\n            SELECT \n                data AS \"data: Vec<u8>\"\n            FROM files \n            WHERE id = ?"
   },
-  "5a5c336a76dbd368f9aee9a92ad258d09145ad07ecae4cf2e3abc45bad2fe362": {
-    "describe": {
-      "columns": [
-        {
-          "name": "number: i32",
-          "ordinal": 0,
-          "type_info": "Int64"
-        },
-        {
-          "name": "start: i64",
-          "ordinal": 1,
-          "type_info": "Int64"
-        },
-        {
-          "name": "end: i64",
-          "ordinal": 2,
-          "type_info": "Int64"
-        },
-        {
-          "name": "text: String",
-          "ordinal": 3,
-          "type_info": "Text"
-        }
-      ],
-      "nullable": [
-        false,
-        false,
-        false,
-        false
-      ],
-      "parameters": {
-        "Right": 1
-      }
-    },
-    "query": "\n            SELECT \n                number AS \"number: i32\",\n                start  AS \"start: i64\",\n                end    AS \"end: i64\",\n                text   AS \"text: String\"\n            FROM segments\n            WHERE file_id = ?"
-  },
-  "614b31bd2eebdab612e4953210cac4970bbba82008e39f899ee4992dc6d7cf01": {
+  "57247ad4205c1131205cdd6027d25906705b709bf2b3c544a55bfc005c0a734b": {
     "describe": {
       "columns": [
         {
@@ -103,10 +77,34 @@
         false
       ],
       "parameters": {
-        "Right": 1
+        "Right": 2
       }
     },
-    "query": "\n            SELECT\n                speaker_id           AS \"speaker_id: String\",\n                start_segment_number AS \"start_segment_number: i32\"\n            FROM speaker_spans\n            WHERE file_id = ?"
+    "query": "\n            SELECT\n                speaker_id           AS \"speaker_id: String\",\n                start_segment_number AS \"start_segment_number: i32\"\n            FROM speaker_spans\n            WHERE \n                file_id = ?\n                AND job_id = ?"
+  },
+  "60fcc67f4b36c0e3aee83612a372b9f682e284e52e156b57391f8b4690f66395": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id: String",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "name: String",
+          "ordinal": 1,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 2
+      }
+    },
+    "query": "\n            SELECT\n                id   AS \"id: String\",\n                name AS \"name: String\"\n            FROM speakers\n            WHERE id IN (\n                SELECT\n                    DISTINCT speaker_id \n                FROM speaker_spans\n                WHERE file_id = ? AND job_id = ?\n            )"
   },
   "78845a8ae423ca2f527986694ba622c73bcfe6533f3ef6527252d88d789248bc": {
     "describe": {
@@ -117,6 +115,24 @@
       }
     },
     "query": "\n            DELETE FROM files WHERE id = ? \n            "
+  },
+  "7c3bbfe8a111ca19cdfec632770346f2a701b7e9e23a64445e82dd3fa9f7c494": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "\n            SELECT id FROM file_jobs WHERE file_id = ?\n            "
   },
   "8fac782eb69000758590dc4a1f250ce8bf5db0ee4176a2c9b15765043dacc00b": {
     "describe": {
@@ -240,29 +256,41 @@
     },
     "query": "\n            SELECT \n                file_jobs.id AS \"job_id: JobId\",\n                name         AS \"name: String\",\n                file_id      AS \"file_id: FileId\",\n                language     AS \"language: Language\",\n                quality      AS \"quality: TranslationQuality\",\n                status       AS \"status: JobStatus\",\n                data\n            FROM file_jobs\n            INNER JOIN files ON (file_id = files.id)\n            WHERE status = 'waiting'\n            ORDER BY file_jobs.id DESC\n            LIMIT 1\n            "
   },
-  "f4ea55bb7450b4bbfdd0346739588a719901ff3144da0538cc87d71eed9433d0": {
+  "fb8f1bc206ef6657c762712dbaca2942b094af9896f23a8cc30a664dd68fcb65": {
     "describe": {
       "columns": [
         {
-          "name": "id: String",
+          "name": "number: i32",
           "ordinal": 0,
-          "type_info": "Text"
+          "type_info": "Int64"
         },
         {
-          "name": "name: String",
+          "name": "start: i64",
           "ordinal": 1,
+          "type_info": "Int64"
+        },
+        {
+          "name": "end: i64",
+          "ordinal": 2,
+          "type_info": "Int64"
+        },
+        {
+          "name": "text: String",
+          "ordinal": 3,
           "type_info": "Text"
         }
       ],
       "nullable": [
         false,
+        false,
+        false,
         false
       ],
       "parameters": {
-        "Right": 1
+        "Right": 2
       }
     },
-    "query": "\n            SELECT\n                id   AS \"id: String\",\n                name AS \"name: String\"\n            FROM speakers\n            WHERE id IN (\n                SELECT\n                    DISTINCT speaker_id \n                FROM speaker_spans\n                WHERE file_id = ?\n            )"
+    "query": "\n            SELECT \n                number AS \"number: i32\",\n                start  AS \"start: i64\",\n                end    AS \"end: i64\",\n                text   AS \"text: String\"\n            FROM segments\n            WHERE \n                file_id = ?\n                AND job_id = ?"
   },
   "fef6d1ada165463f213cd3dc3035c70ac7cf3fecf61e2daed9569c2118a20448": {
     "describe": {

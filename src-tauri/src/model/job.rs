@@ -5,7 +5,7 @@ use crate::language::Language;
 
 use super::{file::FileId, translation_quality::TranslationQuality};
 
-#[derive(TS, sqlx::Type, Debug, Clone, Serialize)]
+#[derive(TS, sqlx::Type, Debug, Clone, Copy, Serialize, Deserialize)]
 #[sqlx(transparent)]
 #[ts(export)]
 pub struct JobId(pub i64);
